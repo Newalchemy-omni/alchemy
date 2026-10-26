@@ -1,7 +1,5 @@
 # SwapRouter
 
-BSC（BNB Smart Chain）兑换路由合约 —— **不可升级（non-upgradeable）、单合约、可在区块浏览器完整验证开源**。
-
 - 合约地址：[`0x6a0D30be107BA8344ca52FC57eb1349fe9CceEC8`](https://bscscan.com/address/0x6a0D30be107BA8344ca52FC57eb1349fe9CceEC8#code)（BscScan 已验证，MIT）
 - 形态：普通合约（无代理 / 无 initializer / 无存储间隙），`Ownable + ReentrancyGuard + constructor` 部署；逻辑一经部署不可更换，owner 仅能调整运行参数（费率、限额、路由地址等）
 - 编译：solc `v0.8.24`，viaIR，optimizer 200 runs，evmVersion `cancun`
