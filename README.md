@@ -7,7 +7,7 @@
 
 ---
 
-## 1. BTCA → BTCB (one-way)
+## BTCA → BTCB (one-way)
 
 **Entry points**: `swapBTCAToBTCB(btcaIn)`; `swapBTCAToBTCBWithNfts(btcaIn, ringIds, fitIds)` (with NFT fee discount)
 
@@ -32,23 +32,12 @@ Flow — BTCA is truly burned, BTCB is paid out from the BTCBVault:
 
 > The reverse direction (BTCB → BTCA) is permanently disabled (`swapBTCBToBTCA` always reverts).
 
-## 2. USDT → UNIX (inventory sale)
-
-**Entry points**: `swapUSDTToUNIX(usdtIn)`; `swapUSDTToUNIXWithMin(usdtIn, minUnixOut)` (with a receive floor, recommended)
-
-1. **Pricing**: live pool quotes — Pancake V2 `[USDT → WBNB → UNI]` × Uniswap V2 `[UNI → UNIX]`, **zero fee**
-2. **Payout**: UNIX is paid out from the platform inventory (dedicated UnixVault) at the pool price — **never bought from the pool, no pool-price impact**; reverts if inventory is insufficient
-3. **USDT destination**: the user's USDT in full enters the yield channel —
-   `USDT →(Pancake V3 0.01%)→ WBNB →(Pancake V3 0.05%)→ BTCB → Aave V3 → aBTCB`, credited to the platform treasury and compounding
-4. **Limits**: 1,000 USDT per address per UTC day (owner-adjustable)
-5. **Anti-sandwich**: the `WithMin` variant takes a minimum UNIX receive amount and reverts if pool manipulation shrinks the outcome
-
 ## Security & Governance
 
 - **Non-upgradeable**: the code is fixed after deployment; nobody — including the owner — can replace the logic
 - **Owner boundary**: parameter-only setters (fees / limits / slippage / router addresses / pause switch); user-asset paths cannot be altered
 - **Emergency withdrawal**: `rescue(token, amount)` recovers mistakenly sent tokens; `rescueLpFeePool(to)` extracts the accrued discount pool
-- **Pause switch**: `setBtcaToBtcbPaused(true)` halts the BTCA→BTCB direction in an emergency (does not affect USDT→UNIX)
+- **Pause switch**: `setBtcaToBtcbPaused(true)` halts the BTCA→BTCB direction in an emergency
 - **Reentrancy**: all swap entry points are `nonReentrant`
 
 ## License
