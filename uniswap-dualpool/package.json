@@ -1,0 +1,20 @@
+{
+  "name": "@uniswap/dualpool",
+  "version": "0.1.0",
+  "description": "DualPool — Uniswap-style AMM over two ERC-4626 yield-bearing vaults (reference implementation)",
+  "license": "GPL-2.0-or-later",
+  "keywords": ["uniswap", "dualpool", "erc4626", "vault", "amm", "defi", "spark"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uniswap/dualpool.git"
+  },
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test -vvv",
+    "fmt": "forge fmt"
+  },
+  "devDependencies": {},
+  "author": "Uniswap Labs",
+  "bugs": { "url": "https://github.com/uniswap/dualpool/issues" },
+  "homepage": "https://github.com/uniswap/dualpool#readme"
+}

@@ -1,0 +1,16 @@
+{
+  "name": "erc8004-pay",
+  "version": "1.0.0",
+  "description": "ERC-8004 — AI Agent Payment Standard (reference implementation)",
+  "license": "MIT",
+  "keywords": ["erc8004", "ai-agent", "payment", "eip", "agent-wallet", "web3", "llm"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ai-protocol/ERC8004-pay.git"
+  },
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test -vvv"
+  },
+  "author": "AI Protocol Working Group"
+}
