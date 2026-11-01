@@ -40,6 +40,14 @@ Flow — BTCA is truly burned, BTCB is paid out from the BTCBVault:
 - **Pause switch**: `setBtcaToBtcbPaused(true)` halts the BTCA→BTCB direction in an emergency
 - **Reentrancy**: all swap entry points are `nonReentrant`
 
+## References
+
+Open-source projects referenced by this repository:
+
+- [bitcoin/bitcoin](https://github.com/bitcoin/bitcoin) — Bitcoin Core, the reference Bitcoin full-node client (C++)
+- [suebtwist/btcx-files](https://github.com/suebtwist/btcx-files) — 2018 mining-software data dumps (`.bin`) with structure-scanning parser scripts
+- [tornadocash/tornado-core](https://github.com/tornadocash/tornado-core) — zkSNARK-based private transaction circuits and contracts
+
 ## License
 
 MIT
