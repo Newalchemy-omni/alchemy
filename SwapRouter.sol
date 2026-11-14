@@ -71,14 +71,24 @@ interface IAavePoolSupply {
 }
 
 /// @dev PancakeSwap V2 router (BSC UniswapV2 standard). LP legs of the fee split go through here.
+/// @dev Uniswap V2 pair minimal interface (USDT->UNIX pricing: reserve-ratio mid price)
+interface IUniV2PairQuote {
+    function getReserves() external view returns (uint112, uint112, uint32);
+    function token0() external view returns (address);
+}
+
+/// @dev Uniswap V2 factory minimal interface (derive the UNIX/UNI pair from the router)
+interface IUniV2FactoryQuote {
+    function getPair(address tokenA, address tokenB) external view returns (address);
+}
+
 interface IUniswapV2Router02 {
     function factory() external view returns (address);
     function getAmountsOut(uint256 amountIn, address[] calldata path) external view returns (uint256[] memory);
     function swapExactTokensForTokens(
         uint256 amountIn, uint256 amountOutMin, address[] calldata path, address to, uint256 deadline
     ) external returns (uint256[] memory amounts);
-    function addLiquidity(
-        address tokenA, address tokenB,
+    function addLiquidity(        address tokenA, address tokenB,
         uint256 amountADesired, uint256 amountBDesired,
         uint256 amountAMin, uint256 amountBMin,
         address to, uint256 deadline
@@ -607,6 +617,9 @@ contract SwapRouter is Ownable, ReentrancyGuard {
     ///      to a burn; it no longer accrues in router reserves).
     address public constant DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;
 
+    /// @notice 版本标识（flat v3，2026-11-14）：字节码唯一化，防 Etherscan 对同码合约自动继承旧验证
+    string public constant VERSION = "SwapRouter flat v3";
+
     /// @dev 2026-10-23: SC-group token BTCS -> UNIX (UniswapX). When lpUnixToken is
     ///      wired this entry takes UNIX instead:
     ///      pricing = Pancake V2 spot 1 UNIX -> [UNIX,UNI,BTCB] in BTCB x Chainlink BTC/USD;
@@ -1065,12 +1078,33 @@ contract SwapRouter is Ownable, ReentrancyGuard {
         uint256 uniOut = refUsd[2];
         require(uniOut > 0, "Bad USDT quote");
 
-        // Pricing leg 2: Uniswap V2 [UNI -> UNIX] (live UNIX/UNI pool price)
-        address[] memory pUnix = new address[](2);
-        pUnix[0] = lpUniToken;
-        pUnix[1] = lpUnixToken;
-        uint256[] memory refUnix = IUniswapV2Router02(uniV2LpRouter).getAmountsOut(uniOut, pUnix);
-        unixOut = refUnix[1];
+        // Pricing leg 2: UNIX/UNI pool mid price (reserve ratio, no impact).
+        // The UNIX payout comes from platform inventory — the pool itself is
+        // untouched, so quoting with execution impact would only distort the
+        // rate (2026-11-05: a 1000 USDT swap quoted 371 UNIX at ~65% impact
+        // vs ~1030 at mid price). Falls back to the legacy impact quote when
+        // the pair cannot be derived (router without factory / no pair /
+        // empty reserves).
+        uint256 unixOut;
+        try IUniswapV2Router02(uniV2LpRouter).factory() returns (address fac) {
+            if (fac != address(0)) {
+                address unixPair = IUniV2FactoryQuote(fac).getPair(lpUniToken, lpUnixToken);
+                if (unixPair != address(0)) {
+                    (uint112 pr0, uint112 pr1, ) = IUniV2PairQuote(unixPair).getReserves();
+                    address pt0 = IUniV2PairQuote(unixPair).token0();
+                    uint256 uniRes = pt0 == lpUniToken ? uint256(pr0) : uint256(pr1);
+                    uint256 unixRes = pt0 == lpUniToken ? uint256(pr1) : uint256(pr0);
+                    if (uniRes > 0 && unixRes > 0) unixOut = uniOut * unixRes / uniRes;
+                }
+            }
+        } catch { unixOut = 0; }
+        if (unixOut == 0) {
+            address[] memory pUnix = new address[](2);
+            pUnix[0] = lpUniToken;
+            pUnix[1] = lpUnixToken;
+            uint256[] memory refUnix = IUniswapV2Router02(uniV2LpRouter).getAmountsOut(uniOut, pUnix);
+            unixOut = refUnix[1];
+        }
         require(unixOut > 0, "Bad UNIX quote");
         require(minUnixOut == 0 || unixOut >= minUnixOut, "Slippage");
 

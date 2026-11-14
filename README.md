@@ -1,6 +1,6 @@
 # SwapRouter
 
-- Contract: [`0x6a0D30be107BA8344ca52FC57eb1349fe9CceEC8`](https://bscscan.com/address/0x6a0D30be107BA8344ca52FC57eb1349fe9CceEC8#code) (verified on BscScan, MIT)
+- Contract: [`0x2bF87C691f5FA9401352F206E38E5e1A80F3afF8`](https://bscscan.com/address/0x2bF87C691f5FA9401352F206E38E5e1A80F3afF8#code) (verified on BscScan, MIT)
 - Form: plain single contract (no proxy / no initializer / no storage gaps), `Ownable + ReentrancyGuard + constructor` deployment; logic is fixed once deployed — the owner can only adjust runtime parameters (fees, limits, router addresses)
 - Compiler: solc `v0.8.24`, viaIR, optimizer 200 runs, evmVersion `cancun`
 - Dependencies: OpenZeppelin Contracts v5 (Ownable / ReentrancyGuard / IERC20 / SafeERC20)
