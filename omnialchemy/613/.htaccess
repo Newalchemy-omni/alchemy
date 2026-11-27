@@ -1,7 +1,0 @@
-# SPA history 路由兜底：/alchemy /airdrop 直链不 404（Apache；nginx 由面板配置）
-RewriteEngine On
-RewriteBase /
-RewriteRule ^index\.html$ - [L]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /index.html [L]
